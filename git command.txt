@@ -1,0 +1,14 @@
+
+cd path/to/your/project
+git init
+
+git clone https://github.com/abasisara1404/InvestmenFund__Bot.git
+
+
+اضافه کردن تغییرات جدید و commit کردن:
+git add .
+git commit -m "توضیح تغییرات"
+git push
+
+همکارانت قبل از کار روی پروژه، آخرین تغییرات را دریافت کنند:
+git pull
