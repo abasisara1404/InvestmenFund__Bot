@@ -1,0 +1,7 @@
+[
+    {"name": "Bitcoin", "id": "bitcoin", "emoji": "₿", "symbol": "BTCUSDT"},
+    {"name": "Ethereum", "id": "ethereum", "emoji": "🟣", "symbol": "ETHUSDT"},
+    {"name": "Dogecoin", "id": "dogecoin", "emoji": "🐶", "symbol": "DOGEUSDT"},
+    {"name": "Solana", "id": "solana", "emoji": "🌊", "symbol": "SOLUSDT"},
+    {"name": "BNB", "id": "binancecoin", "emoji": "🟡", "symbol": "BNBUSDT"}
+]

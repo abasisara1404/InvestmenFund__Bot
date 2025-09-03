@@ -1,0 +1,4 @@
+pip install requests matplotlib
+pip install mplfinance
+نمودار خطی ساده رو تبدیل کنیم به کندل‌چارت (Candlestick chart) مثل تریدینگ‌ویو.
+با matplotlib و ماژول mplfinance می‌تونیم این کارو انجام بدیم.
