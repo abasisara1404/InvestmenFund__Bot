@@ -1,0 +1,46 @@
+{
+  "user": {
+    "main": [
+      {
+        "key": "menu.fund_performance",
+        "submenu": ["menu.sub1","back.message"]
+      },
+      {
+        "key": "menu.account",
+        "submenu": ["menu.account.register", "back.message"]
+      },
+      {
+        "key": "menu.investment",
+        "submenu": ["menu.sub1", "back.message"]
+      },
+      {
+        "key": "menu.investment_status", "submenu": ["menu.sub1", "back.message"]
+      },
+      {
+        "key": "menu.referral", "submenu": ["menu.sub1", "back.message"]
+      },
+      {
+        "key": "menu.support", "submenu": ["menu.sub1", "back.message"]
+      },
+      {
+        "key": "menu.faq", "submenu": ["menu.sub1", "back.message"]
+      }
+    ]
+  },
+  "admin": {
+    "main": [
+      {
+        "key": "menu.admin.fund_performance",
+        "submenu": ["menu.admin.nav","back.message"]
+      },
+      {
+        "key": "menu.admin.investor_list",
+        "submenu": ["menu.admin.investment","menu.admin.user_stats","menu.admin.send_message","menu.admin.block_user","menu.admin.change_profit","back.message"]
+      },
+      {
+        "key": "menu.admin.investor_stats",
+        "submenu": ["menu.sub1","back.message"]
+      }
+    ]
+  }
+}

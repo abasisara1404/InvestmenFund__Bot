@@ -1,6 +1,1 @@
-[
-    {"label": "1D", "value": "1d"},
-    {"label": "4H", "value": "4h"},
-    {"label": "1H", "value": "1h"},
-    {"label": "15M", "value": "15m"}
-]
+["1m", "5m", "15m", "1h", "4h", "1d"]

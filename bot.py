@@ -1,59 +1,71 @@
-import json
-from shared import bot, user_languages, get_user_type
+# bot.py
+from shared import bot, user_languages, user_types, t, user_current_menu
 import main_menu
-import coin_menu
-import telebot
+import json
+from telebot import types
 
-# ------------------ بارگذاری coins و timeframes ------------------
-with open("coins.json", "r", encoding="utf-8") as f:
-    coins_data = json.load(f)
-with open("timeframes.json", "r", encoding="utf-8") as f:
-    timeframes_data = json.load(f)
+# =================== Load Users ===================
+with open("users.json", "r", encoding="utf-8") as f:
+    users = json.load(f)
+    for u in users:
+        user_types[u["chat_id"]] = u.get("type", "user")
 
-coin_menu.coins.extend(coins_data)
-coin_menu.timeframes.extend(timeframes_data)
+# =================== Load Menu ===================
+main_menu.load_menu_json()
 
-# ------------------ ثبت هندلرها ------------------
-main_menu.register_handlers()
-coin_menu.register_handlers()
-
-# ------------------ هندلر /start ------------------
+# =================== Start Command ===================
 @bot.message_handler(commands=['start'])
 def start(message):
-    chat_id = str(message.chat.id)
+    chat_id = message.chat.id
+    # اگر کاربر جدید است، پیش‌فرض یوزر
+    if chat_id not in user_types:
+        user_types[chat_id] = "user"
+    # انتخاب زبان
     lang_buttons = [
-        telebot.types.InlineKeyboardButton("🇮🇷 فارسی", callback_data="lang_fa"),
-        telebot.types.InlineKeyboardButton("🇬🇧 English", callback_data="lang_en"),
-        telebot.types.InlineKeyboardButton("🇩🇪 Deutsch", callback_data="lang_de"),
-        telebot.types.InlineKeyboardButton("🇷🇺 Русский", callback_data="lang_ru")
+        types.InlineKeyboardButton("🇮🇷 فارسی", callback_data="lang_fa"),
+        types.InlineKeyboardButton("🇬🇧 English", callback_data="lang_en"),
+        types.InlineKeyboardButton("🇩🇪 Deutsch", callback_data="lang_de"),
+        types.InlineKeyboardButton("🇷🇺 Русский", callback_data="lang_ru")
     ]
-    markup = telebot.types.InlineKeyboardMarkup(row_width=2)
+    markup = types.InlineKeyboardMarkup(row_width=2)
     markup.add(*lang_buttons)
     bot.send_message(chat_id, "Choose your language / زبان خود را انتخاب کنید:", reply_markup=markup)
 
-# ------------------ انتخاب زبان ------------------
-@bot.callback_query_handler(func=lambda call: call.data.startswith("lang_"))
+# =================== Language Selection ===================
+@bot.callback_query_handler(func=lambda c: c.data.startswith("lang_"))
 def set_language(call):
-    chat_id = str(call.message.chat.id)
     lang = call.data.split("_")[1]
+    chat_id = call.message.chat.id
     user_languages[chat_id] = lang
+    # ارسال منوی اصلی بر اساس نوع کاربر
+    main_menu.send_main_menu(chat_id, user_types.get(chat_id, "user"))
 
-    # نمایش منو بر اساس نوع کاربر
-    if get_user_type(chat_id) == "admin":
-        main_menu.send_admin_menu(call.message)
-    else:
-        main_menu.send_user_menu(call.message)
-
-# ------------------ هندلر تست Chat ID ------------------
-@bot.message_handler(commands=['myid'])
-def myid(message):
-    chat_id = str(message.chat.id)
-    user_type = get_user_type(chat_id)
+# =================== Handle Menu Buttons ===================
+@bot.message_handler(func=lambda m: True)
+def handle_buttons(message):
+    chat_id = message.chat.id
     lang = user_languages.get(chat_id, "fa")
-    bot.send_message(chat_id, f"Your Chat ID: {chat_id}\nUser Type: {user_type}\nCurrent Lang: {lang}")
+    text = message.text
+    options = user_current_menu.get(chat_id, [])
 
-# ------------------ حذف session قبلی ------------------
-bot.delete_webhook()  # ⚡ این خط جلوی خطای 409 را می‌گیرد
+    # دکمه Back
+    if text == t(lang, "back.message"):
+        # برگشت به منوی اصلی
+        main_menu.send_main_menu(chat_id, user_types.get(chat_id, "user"))
+        return
 
-# ------------------ اجرای ربات ------------------
+    # پیدا کردن کلید متناظر با لیبل
+    key_match = None
+    for key in options:
+        if text == t(lang, key):
+            key_match = key
+            break
+    if not key_match:
+        bot.send_message(chat_id, "Invalid option or not allowed.")
+        return
+
+    # اگر زیرمنو دارد
+    main_menu.send_sub_menu(chat_id, key_match)
+
+# =================== Start Polling ===================
 bot.infinity_polling()
