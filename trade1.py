@@ -22,7 +22,7 @@ bot = telebot.TeleBot(BOT_TOKEN)
 def load_properties(lang):
     props = {}
     filename = os.path.join("messages", f"{lang}.properties")
-    with open(filename, encoding="utf-8") as f:
+    with open(filename, "r", encoding="utf-8") as f:
         for line in f:
             line = line.strip()
             if not line or line.startswith("#"):
@@ -32,13 +32,7 @@ def load_properties(lang):
                 props[key.strip()] = value.strip()
     return props
 
-# داینامیک خواندن تمام زبان‌ها از پوشه messages
-translations = {}
-messages_dir = "messages"
-for filename in os.listdir(messages_dir):
-    if filename.endswith(".properties"):
-        lang = filename.split(".")[0]
-        translations[lang] = load_properties(lang)
+translations = {lang: load_properties(lang) for lang in ["fa","en","de","ru"]}
 
 def t(lang, key, **kwargs):
     text = translations.get(lang, {}).get(key, key)
@@ -73,13 +67,12 @@ def safe_edit_message_markup(chat_id, message_id, new_markup):
 # =================== Start Command ===================
 @bot.message_handler(commands=['start'])
 def start(message):
-    # ساخت دکمه‌های زبان داینامیک
-    lang_buttons = []
-    flags = {"fa":"🇮🇷", "en":"🇬🇧", "de":"🇩🇪", "ru":"🇷🇺"}
-    for lang in translations.keys():
-        flag = flags.get(lang,"")
-        lang_buttons.append(types.InlineKeyboardButton(f"{flag} {lang}", callback_data=f"lang_{lang}"))
-    
+    lang_buttons = [
+        types.InlineKeyboardButton("🇮🇷 فارسی", callback_data="lang_fa"),
+        types.InlineKeyboardButton("🇬🇧 English", callback_data="lang_en"),
+        types.InlineKeyboardButton("🇩🇪 Deutsch", callback_data="lang_de"),
+        types.InlineKeyboardButton("🇷🇺 Русский", callback_data="lang_ru")
+    ]
     markup = types.InlineKeyboardMarkup(row_width=2)
     markup.add(*lang_buttons)
     bot.send_message(message.chat.id, "Choose your language / زبان خود را انتخاب کنید:", reply_markup=markup)
@@ -193,10 +186,10 @@ def handle_main_choice(message):
     lang = get_lang(chat_id)
     selected = message.text
 
-    # پیام کوتاه هنگام باز کردن زیرمنو
+    # ===================== نمایش پیام "در حال باز کردن زیرمنو..." =====================
     opening_msg = bot.send_message(chat_id, t(lang, "submenu.opening"))
 
-    # ساخت زیرمنو
+    # ===================== ساخت زیرمنو =====================
     markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
     sub_buttons = [
         types.KeyboardButton("1"),
@@ -206,10 +199,10 @@ def handle_main_choice(message):
     ]
     markup.add(*sub_buttons)
 
-    # نمایش زیرمنو
+    # ===================== نمایش زیرمنو =====================
     bot.send_message(chat_id, t(lang, "submenu.choose_option", choice=selected), reply_markup=markup)
 
-    # حذف پیام "در حال باز کردن زیرمنو..."
+    # ===================== حذف پیام "در حال باز کردن زیرمنو..." =====================
     try:
         bot.delete_message(chat_id, opening_msg.message_id)
     except:
